@@ -171,10 +171,13 @@ const API=location.hostname==='localhost'?'http://localhost:3000/api':'https://b
 const TOKEN_KEY='bn_menu_token';
 const ROLE_KEY='bn_menu_role';
 const NAME_KEY='bn_menu_name';
+const SYNC_KEY='bn_menu_sync';
+let syncChannel=null;
 const getToken=()=>localStorage.getItem(TOKEN_KEY)||'';
 const getRole=()=>localStorage.getItem(ROLE_KEY)||'';
-const setSession=(token,user)=>{localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(ROLE_KEY,user.role||'user');localStorage.setItem(NAME_KEY,user.displayName||user.email||'Conta')};
-const clearSession=()=>{localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(ROLE_KEY);localStorage.removeItem(NAME_KEY)};
+const emitSync=(type)=>{const payload={type,time:Date.now()};try{localStorage.setItem(SYNC_KEY,JSON.stringify(payload))}catch(error){}if(syncChannel){syncChannel.postMessage(payload)}};
+const setSession=(token,user)=>{localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(ROLE_KEY,user.role||'user');localStorage.setItem(NAME_KEY,user.displayName||user.email||'Conta');emitSync('session-changed')};
+const clearSession=()=>{localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(ROLE_KEY);localStorage.removeItem(NAME_KEY);emitSync('session-changed')};
 function setStatus(text,error){const el=document.getElementById('statusText');el.textContent=text;el.className=error?'status-text error':'status-text'}
 async function req(path,options={}){const request={method:options.method||'GET',headers:{'Content-Type':'application/json',...(options.headers||{})}};if(getToken()&&options.auth!==false)request.headers.Authorization=`Bearer ${getToken()}`;if(options.body!==undefined)request.body=JSON.stringify(options.body);const res=await fetch(API+path,request);const data=await res.json().catch(()=>({success:false,message:'Resposta invalida da API.'}));if(!res.ok||!data.success)throw new Error(data.message||'Falha na requisicao.');return data}
 function updateButtons(){const role=getRole();const dash=document.getElementById('dashboardButton');const logout=document.getElementById('logoutButton');if(!getToken()){dash.textContent='Login';logout.classList.add('hide');return}dash.textContent='Dashboard';logout.classList.remove('hide');if(role==='admin'){logout.classList.remove('hide');return}logout.classList.add('hide')}
@@ -187,6 +190,8 @@ async function registerAccount(event){event.preventDefault();setStatus('Criando 
 async function validateSession(){if(!getToken())return;try{const me=await req('/auth/me');setSession(getToken(),me.data.user);updateButtons()}catch(error){clearSession();updateButtons()}}
 function logout(){clearSession();updateButtons()}
 window.addEventListener('click',event=>{if(event.target.id==='authModal')closeModal()});
+if('BroadcastChannel' in window){syncChannel=new BroadcastChannel('bn-menu-sync');syncChannel.onmessage=()=>updateButtons()}
+window.addEventListener('storage',event=>{if(event.key===SYNC_KEY||event.key===TOKEN_KEY||event.key===ROLE_KEY){updateButtons()}});
 updateButtons();validateSession();
 </script>
 </body>
