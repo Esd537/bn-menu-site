@@ -823,5 +823,409 @@
         // Carregar ao iniciar
         window.addEventListener('load', loadDashboard);
     </script>
+    <script>
+        (() => {
+            const API_URL = 'https://bn-menu-api.onrender.com/api';
+            const AUTH_STORAGE_KEY = 'bn_admin_authenticated';
+            const ADMIN_USERNAME = 'eabn8';
+            const ADMIN_PASSWORD = 'admchora';
+            let hideMessageTimeout = null;
+            let dashboardStats = {};
+
+            keys = {};
+
+            function ensureAuthenticated() {
+                if (sessionStorage.getItem(AUTH_STORAGE_KEY) === 'true') {
+                    return true;
+                }
+
+                const username = prompt('Usuario do painel admin:');
+                if (username === null) {
+                    window.location.href = 'index.html';
+                    return false;
+                }
+
+                const password = prompt('Senha do painel admin:');
+                if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                    sessionStorage.setItem(AUTH_STORAGE_KEY, 'true');
+                    return true;
+                }
+
+                alert('Usuario ou senha incorretos!');
+                window.location.href = 'index.html';
+                return false;
+            }
+
+            async function apiRequest(path, options = {}) {
+                const requestOptions = {
+                    method: options.method || 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(options.headers || {})
+                    }
+                };
+
+                if (options.body !== undefined) {
+                    requestOptions.body = typeof options.body === 'string'
+                        ? options.body
+                        : JSON.stringify(options.body);
+                }
+
+                const response = await fetch(`${API_URL}${path}`, requestOptions);
+                let payload;
+
+                try {
+                    payload = await response.json();
+                } catch (error) {
+                    throw new Error('A API retornou uma resposta invalida.');
+                }
+
+                if (!response.ok || !payload.success) {
+                    throw new Error(payload.message || `Erro ${response.status} ao falar com a API.`);
+                }
+
+                return payload;
+            }
+
+            function getExpiryTimeSafe(type) {
+                const times = {
+                    daily: 86400000,
+                    weekly: 604800000,
+                    monthly: 2592000000,
+                    lifetime: Infinity,
+                    dev: Infinity
+                };
+                return times[type] || 0;
+            }
+
+            function escapeHtml(value) {
+                return String(value)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            showMessage = function(text, type) {
+                const messageDiv = document.getElementById('message');
+                messageDiv.textContent = text;
+                messageDiv.className = `message ${type}`;
+                messageDiv.style.display = 'block';
+
+                if (hideMessageTimeout) {
+                    clearTimeout(hideMessageTimeout);
+                }
+
+                hideMessageTimeout = setTimeout(() => {
+                    messageDiv.style.display = 'none';
+                }, 5000);
+            };
+
+            updateStats = function(stats = dashboardStats) {
+                document.getElementById('totalKeys').textContent = stats.total ?? Object.keys(keys).length;
+                document.getElementById('activeKeys').textContent = stats.active ?? 0;
+                document.getElementById('expiredKeys').textContent = stats.expired ?? 0;
+                document.getElementById('uniqueUsers').textContent = stats.uniqueUsers ?? 0;
+            };
+
+            loadKeys = function() {
+                const tbody = document.getElementById('keysBody');
+                tbody.innerHTML = '';
+
+                const entries = Object.entries(keys);
+                if (entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="8">Nenhuma key cadastrada.</td></tr>';
+                    return;
+                }
+
+                const now = new Date();
+
+                entries.forEach(([key, data]) => {
+                    const created = new Date(data.created);
+                    const expiryTime = getExpiryTimeSafe(data.type);
+                    const expiry = new Date(created.getTime() + expiryTime);
+                    const isActive = expiry > now || expiryTime === Infinity;
+                    const statusClass = isActive ? 'status-active' : 'status-expired';
+                    const statusText = isActive ? 'Ativa' : 'Expirada';
+                    const devices = data.devices || [];
+                    const maxDevices = data.maxDevices || 1;
+
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><code>${escapeHtml(key)}</code></td>
+                        <td>${escapeHtml(data.type)}</td>
+                        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                        <td>${created.toLocaleDateString('pt-BR')}</td>
+                        <td>${expiryTime === Infinity ? '∞' : expiry.toLocaleDateString('pt-BR')}</td>
+                        <td>${devices.length}/${maxDevices}</td>
+                        <td>${escapeHtml(data.user || '-')}</td>
+                        <td>
+                            <button class="btn-action btn-copy" onclick='copyToClipboard(${JSON.stringify(key)})'>Copiar</button>
+                            <button class="btn-action" onclick='openKeySettings(${JSON.stringify(key)})' style="background: rgba(139, 92, 246, 0.2); color: var(--primary); border: 1px solid var(--primary);">Config</button>
+                            <button class="btn-action btn-delete" onclick='deleteKey(${JSON.stringify(key)})'>Deletar</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            };
+
+            loadUsers = function() {
+                const tbody = document.getElementById('usersBody');
+                tbody.innerHTML = '';
+
+                const userList = {};
+                Object.entries(keys).forEach(([, data]) => {
+                    if (!data.user) {
+                        return;
+                    }
+
+                    if (!userList[data.user]) {
+                        userList[data.user] = { keys: 0, lastAccess: data.created };
+                    }
+
+                    userList[data.user].keys += 1;
+                    userList[data.user].lastAccess = data.created;
+                });
+
+                const entries = Object.entries(userList);
+                if (entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4">Nenhum usuario vinculado a keys.</td></tr>';
+                    return;
+                }
+
+                entries.forEach(([user, data]) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${escapeHtml(user)}</td>
+                        <td>${data.keys}</td>
+                        <td>${new Date(data.lastAccess).toLocaleDateString('pt-BR')}</td>
+                        <td>
+                            <button class="btn-action btn-delete" onclick='deleteUser(${JSON.stringify(user)})'>Remover</button>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            };
+
+            loadDashboard = async function() {
+                try {
+                    const [statsResponse, keysResponse] = await Promise.all([
+                        apiRequest('/stats'),
+                        apiRequest('/keys')
+                    ]);
+
+                    dashboardStats = statsResponse.data || {};
+                    keys = keysResponse.data || {};
+                    updateStats();
+                    loadKeys();
+                    loadUsers();
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            generateKeys = async function() {
+                const quantity = parseInt(document.getElementById('keyQuantity').value, 10);
+                const type = document.getElementById('keyType').value;
+
+                if (!Number.isInteger(quantity) || quantity < 1 || quantity > 1000) {
+                    showMessage('Informe uma quantidade valida entre 1 e 1000.', 'error');
+                    return;
+                }
+
+                try {
+                    const response = await apiRequest('/keys/create', {
+                        method: 'POST',
+                        body: { type, quantity }
+                    });
+
+                    await loadDashboard();
+                    showMessage(response.message || 'Keys geradas com sucesso!', 'success');
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            copyToClipboard = async function(text) {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    showMessage('Key copiada para a area de transferencia!', 'success');
+                } catch (error) {
+                    showMessage('Nao foi possivel copiar a key.', 'error');
+                }
+            };
+
+            deleteAllKeys = async function() {
+                if (!confirm('Tem certeza que deseja deletar todas as keys?')) {
+                    return;
+                }
+
+                if (!confirm(`Ultima confirmacao: deletar ${Object.keys(keys).length} keys?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await apiRequest('/keys', { method: 'DELETE' });
+                    await loadDashboard();
+                    showMessage(response.message || 'Todas as keys foram deletadas!', 'success');
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            deleteKeysByType = async function() {
+                const type = prompt('Digite o tipo de key para deletar:\n\ndaily\nweekly\nmonthly\nlifetime\ndev');
+                if (!type) {
+                    return;
+                }
+
+                const normalizedType = type.trim().toLowerCase();
+                const matches = Object.entries(keys).filter(([, data]) => data.type === normalizedType);
+                if (matches.length === 0) {
+                    showMessage(`Nenhuma key do tipo "${normalizedType}" encontrada.`, 'error');
+                    return;
+                }
+
+                if (!confirm(`Deletar ${matches.length} keys do tipo "${normalizedType}"?`)) {
+                    return;
+                }
+
+                try {
+                    const response = await apiRequest(`/keys/type/${encodeURIComponent(normalizedType)}`, {
+                        method: 'DELETE'
+                    });
+                    await loadDashboard();
+                    showMessage(response.message || 'Keys deletadas com sucesso!', 'success');
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            openKeySettings = async function(key) {
+                const data = keys[key];
+                if (!data) {
+                    showMessage('Key nao encontrada.', 'error');
+                    return;
+                }
+
+                const devices = data.devices || [];
+                const maxDevices = data.maxDevices || 1;
+                const deviceList = devices.length > 0
+                    ? devices.map((device, index) => `${index + 1}. ${device}`).join('\n')
+                    : 'Nenhum dispositivo conectado';
+
+                const action = prompt(
+                    `CONFIGURACOES DA KEY: ${key}\n\n` +
+                    `Tipo: ${data.type}\n` +
+                    `Dispositivos: ${devices.length}/${maxDevices}\n\n` +
+                    `Dispositivos conectados:\n${deviceList}\n\n` +
+                    `Digite:\n` +
+                    `1 - Resetar HWID\n` +
+                    `2 - Alterar limite de dispositivos\n` +
+                    `3 - Ver detalhes\n` +
+                    `0 - Cancelar`
+                );
+
+                if (action === '1') {
+                    if (!confirm('Resetar o HWID desta key?')) {
+                        return;
+                    }
+
+                    try {
+                        const response = await apiRequest(`/keys/${encodeURIComponent(key)}/reset-hwid`, {
+                            method: 'POST'
+                        });
+                        await loadDashboard();
+                        showMessage(response.message || 'HWID resetado com sucesso!', 'success');
+                    } catch (error) {
+                        showMessage(error.message, 'error');
+                    }
+                } else if (action === '2') {
+                    showMessage('Alterar limite de dispositivos nao esta disponivel na API atual.', 'error');
+                } else if (action === '3') {
+                    alert(
+                        `DETALHES DA KEY\n\n` +
+                        `Key: ${key}\n` +
+                        `Tipo: ${data.type}\n` +
+                        `Criada: ${new Date(data.created).toLocaleString('pt-BR')}\n` +
+                        `Dispositivos: ${devices.length}/${maxDevices}\n` +
+                        `Usuario: ${data.user || 'Nenhum'}\n` +
+                        `Status: ${data.active ? 'Ativa' : 'Inativa'}`
+                    );
+                }
+            };
+
+            deleteKey = async function(key) {
+                if (!confirm('Tem certeza que deseja deletar esta key?')) {
+                    return;
+                }
+
+                try {
+                    const response = await apiRequest(`/keys/${encodeURIComponent(key)}`, {
+                        method: 'DELETE'
+                    });
+                    await loadDashboard();
+                    showMessage(response.message || 'Key deletada com sucesso!', 'success');
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            deleteUser = async function(user) {
+                const userKeys = Object.entries(keys).filter(([, data]) => data.user === user);
+                if (userKeys.length === 0) {
+                    showMessage('Nenhuma key encontrada para este usuario.', 'error');
+                    return;
+                }
+
+                if (!confirm(`Tem certeza que deseja remover o usuario ${user}?`)) {
+                    return;
+                }
+
+                try {
+                    for (const [key] of userKeys) {
+                        await apiRequest(`/keys/${encodeURIComponent(key)}/reset-hwid`, {
+                            method: 'POST'
+                        });
+                    }
+
+                    await loadDashboard();
+                    showMessage('Usuario removido com sucesso!', 'success');
+                } catch (error) {
+                    showMessage(error.message, 'error');
+                }
+            };
+
+            searchUsers = function() {
+                const search = document.getElementById('userSearch').value.toLowerCase();
+                const rows = document.getElementById('usersBody').querySelectorAll('tr');
+
+                rows.forEach((row) => {
+                    const firstCell = row.cells[0];
+                    if (!firstCell) {
+                        return;
+                    }
+
+                    row.style.display = firstCell.textContent.toLowerCase().includes(search) ? '' : 'none';
+                });
+            };
+
+            logout = function() {
+                if (confirm('Deseja realmente sair?')) {
+                    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+                    window.location.href = 'index.html';
+                }
+            };
+
+            window.addEventListener('load', async () => {
+                if (!ensureAuthenticated()) {
+                    return;
+                }
+
+                await loadDashboard();
+            });
+        })();
+    </script>
 </body>
 </html>
