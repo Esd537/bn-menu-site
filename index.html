@@ -640,6 +640,7 @@
             const password = document.getElementById('password').value;
             
             if (username === 'eabn8' && password === 'admchora') {
+                sessionStorage.setItem('bn_admin_authenticated', 'true');
                 window.location.href = 'admin.html';
             } else {
                 alert('❌ Usuário ou senha incorretos!');
