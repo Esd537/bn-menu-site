@@ -140,20 +140,21 @@
 <div class="modal-card">
 <button class="close" type="button" onclick="closeModal()">&times;</button>
 <h3>Entrar no site</h3>
-<p class="meta">Login apenas com email. Se for admin, a dashboard abre; se for usuario comum, voce continua na tela de compra e pode sair da conta quando quiser.</p>
+<p class="meta">Login com email ou usuario. Se for admin, a dashboard abre; se for usuario comum, voce continua na tela de compra e pode sair da conta quando quiser.</p>
 <div class="switcher">
 <button class="tab active" data-tab="login" type="button" onclick="setTab('login')">Login</button>
 <button class="tab" data-tab="register" type="button" onclick="setTab('register')">Criar conta</button>
 </div>
 <div class="panel active" id="loginPanel">
 <form class="form" onsubmit="login(event)">
-<div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" required></div>
+<div class="field"><label for="loginIdentifier">Email ou usuario</label><input id="loginIdentifier" type="text" required></div>
 <div class="field"><label for="loginPassword">Senha</label><input id="loginPassword" type="password" required></div>
 <button class="btn" type="submit">Entrar</button>
 </form>
 </div>
 <div class="panel" id="registerPanel">
 <form class="form" onsubmit="registerAccount(event)">
+<div class="field"><label for="registerUsername">Usuario</label><input id="registerUsername" type="text" required></div>
 <div class="field"><label for="registerName">Nome</label><input id="registerName" type="text" required></div>
 <div class="field"><label for="registerEmail">Email</label><input id="registerEmail" type="email" required></div>
 <div class="field"><label for="registerPassword">Senha</label><input id="registerPassword" type="password" required></div>
@@ -181,8 +182,8 @@ function handleMainAction(){if(!getToken()){openModal();return}location.href='ad
 function openModal(){document.getElementById('authModal').classList.add('active');setTab('login');setStatus('',false)}
 function closeModal(){document.getElementById('authModal').classList.remove('active')}
 function setTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));document.getElementById('loginPanel').classList.toggle('active',tab==='login');document.getElementById('registerPanel').classList.toggle('active',tab==='register');setStatus('',false)}
-async function login(event){event.preventDefault();setStatus('Entrando...',false);try{const payload=await req('/auth/login',{method:'POST',auth:false,body:{identifier:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();if(payload.data.user.role==='admin'){location.href='admin.html';return}closeModal();setStatus('',false)}catch(error){setStatus(error.message,true)}}
-async function registerAccount(event){event.preventDefault();setStatus('Criando conta...',false);try{const payload=await req('/auth/register',{method:'POST',auth:false,body:{displayName:document.getElementById('registerName').value,email:document.getElementById('registerEmail').value,password:document.getElementById('registerPassword').value,confirmPassword:document.getElementById('registerConfirmPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();closeModal()}catch(error){setStatus(error.message,true)}}
+async function login(event){event.preventDefault();setStatus('Entrando...',false);try{const payload=await req('/auth/login',{method:'POST',auth:false,body:{identifier:document.getElementById('loginIdentifier').value,password:document.getElementById('loginPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();if(payload.data.user.role==='admin'){location.href='admin.html';return}closeModal();setStatus('',false)}catch(error){setStatus(error.message,true)}}
+async function registerAccount(event){event.preventDefault();setStatus('Criando conta...',false);try{const payload=await req('/auth/register',{method:'POST',auth:false,body:{username:document.getElementById('registerUsername').value,displayName:document.getElementById('registerName').value,email:document.getElementById('registerEmail').value,password:document.getElementById('registerPassword').value,confirmPassword:document.getElementById('registerConfirmPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();closeModal()}catch(error){setStatus(error.message,true)}}
 async function validateSession(){if(!getToken())return;try{const me=await req('/auth/me');setSession(getToken(),me.data.user);updateButtons()}catch(error){clearSession();updateButtons()}}
 function logout(){clearSession();updateButtons()}
 window.addEventListener('click',event=>{if(event.target.id==='authModal')closeModal()});
