@@ -1,852 +1,192 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BN MENU - Portal</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        :root {
-            --bg: #060816;
-            --panel: rgba(10, 18, 39, 0.88);
-            --panel-soft: rgba(21, 31, 60, 0.72);
-            --line: rgba(122, 162, 255, 0.18);
-            --primary: #5ea2ff;
-            --secondary: #00d1b2;
-            --accent: #ff7a18;
-            --danger: #ff5d73;
-            --text: #f5f7ff;
-            --muted: rgba(245, 247, 255, 0.72);
-            --shadow: 0 24px 80px rgba(3, 8, 24, 0.45);
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: 'Rajdhani', sans-serif;
-            color: var(--text);
-            background:
-                radial-gradient(circle at top left, rgba(94, 162, 255, 0.18), transparent 24%),
-                radial-gradient(circle at top right, rgba(0, 209, 178, 0.14), transparent 20%),
-                linear-gradient(160deg, #050712 0%, #091228 55%, #060816 100%);
-        }
-
-        a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .shell {
-            width: min(1200px, calc(100% - 32px));
-            margin: 0 auto;
-        }
-
-        .nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 24px 0;
-        }
-
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 28px;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .logo span {
-            color: var(--secondary);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-            color: var(--muted);
-            font-size: 18px;
-        }
-
-        .nav-links a:hover {
-            color: var(--text);
-        }
-
-        .nav-button,
-        .primary-button,
-        .ghost-button,
-        .auth-submit,
-        .social-button {
-            border: none;
-            cursor: pointer;
-            font: inherit;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
-        }
-
-        .nav-button,
-        .primary-button,
-        .auth-submit {
-            color: #06111e;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            box-shadow: 0 16px 40px rgba(0, 209, 178, 0.22);
-        }
-
-        .nav-button,
-        .ghost-button,
-        .primary-button,
-        .auth-submit,
-        .social-button {
-            border-radius: 14px;
-            padding: 12px 18px;
-            font-weight: 700;
-        }
-
-        .ghost-button,
-        .social-button {
-            color: var(--text);
-            background: rgba(255, 255, 255, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .hero {
-            padding: 56px 0 32px;
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 28px;
-            align-items: stretch;
-        }
-
-        .hero-card,
-        .hero-side,
-        .feature-card,
-        .pricing-card,
-        .footer,
-        .modal-card {
-            background: var(--panel);
-            border: 1px solid var(--line);
-            box-shadow: var(--shadow);
-            backdrop-filter: blur(18px);
-        }
-
-        .hero-card {
-            border-radius: 30px;
-            padding: 42px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .hero-pill {
-            width: fit-content;
-            border-radius: 999px;
-            padding: 10px 16px;
-            color: var(--secondary);
-            background: rgba(0, 209, 178, 0.1);
-            border: 1px solid rgba(0, 209, 178, 0.24);
-            font-weight: 700;
-            letter-spacing: 0.4px;
-        }
-
-        .hero-card h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: clamp(34px, 5vw, 62px);
-            line-height: 1.05;
-        }
-
-        .hero-card p,
-        .feature-card p,
-        .pricing-card li,
-        .footer p {
-            color: var(--muted);
-            line-height: 1.55;
-        }
-
-        .hero-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 14px;
-        }
-
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
-        }
-
-        .stat-chip {
-            border-radius: 18px;
-            padding: 16px;
-            background: var(--panel-soft);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .stat-chip strong {
-            display: block;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 26px;
-            margin-bottom: 6px;
-        }
-
-        .hero-side {
-            border-radius: 30px;
-            padding: 28px;
-            display: grid;
-            gap: 18px;
-            grid-template-rows: repeat(3, minmax(0, 1fr));
-        }
-
-        .panel-block {
-            border-radius: 22px;
-            padding: 22px;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-        }
-
-        .panel-block h3,
-        .section-head h2,
-        .pricing-card h3,
-        .modal-card h2 {
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .section {
-            padding: 32px 0;
-        }
-
-        .section-head {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .section-head h2 {
-            font-size: 34px;
-        }
-
-        .features-grid,
-        .pricing-grid {
-            display: grid;
-            gap: 18px;
-        }
-
-        .features-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .feature-card,
-        .pricing-card {
-            border-radius: 26px;
-            padding: 26px;
-        }
-
-        .feature-card h3 {
-            margin: 12px 0 10px;
-            font-size: 22px;
-        }
-
-        .feature-icon {
-            width: 54px;
-            height: 54px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            background: linear-gradient(135deg, rgba(94, 162, 255, 0.22), rgba(0, 209, 178, 0.16));
-            font-size: 24px;
-        }
-
-        .pricing-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .pricing-card.featured {
-            border-color: rgba(0, 209, 178, 0.34);
-            transform: translateY(-6px);
-        }
-
-        .price {
-            margin: 16px 0 6px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 38px;
-        }
-
-        .price-period {
-            color: var(--muted);
-            margin-bottom: 18px;
-        }
-
-        .pricing-list {
-            list-style: none;
-            display: grid;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        .pricing-list li::before {
-            content: '•';
-            color: var(--secondary);
-            margin-right: 8px;
-        }
-
-        .footer {
-            border-radius: 24px 24px 0 0;
-            margin-top: 40px;
-            padding: 24px 28px 32px;
-            display: flex;
-            justify-content: space-between;
-            gap: 16px;
-            align-items: center;
-        }
-
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            background: rgba(2, 6, 19, 0.76);
-            backdrop-filter: blur(12px);
-            z-index: 30;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-card {
-            width: min(560px, 100%);
-            border-radius: 28px;
-            padding: 28px;
-            position: relative;
-        }
-
-        .close-button {
-            position: absolute;
-            top: 18px;
-            right: 18px;
-            border: none;
-            background: transparent;
-            color: var(--muted);
-            font-size: 28px;
-            cursor: pointer;
-        }
-
-        .auth-switcher {
-            margin-top: 18px;
-            display: inline-flex;
-            border-radius: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 4px;
-            gap: 4px;
-        }
-
-        .auth-tab {
-            border: none;
-            background: transparent;
-            color: var(--muted);
-            padding: 10px 14px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        .auth-tab.active {
-            background: rgba(94, 162, 255, 0.18);
-            color: var(--text);
-        }
-
-        .auth-panel {
-            display: none;
-            margin-top: 22px;
-        }
-
-        .auth-panel.active {
-            display: block;
-        }
-
-        .auth-grid {
-            display: grid;
-            gap: 12px;
-        }
-
-        .auth-grid.two-col {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .field {
-            display: grid;
-            gap: 8px;
-        }
-
-        .field label {
-            color: var(--muted);
-            font-weight: 600;
-        }
-
-        .field input {
-            width: 100%;
-            border-radius: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            background: rgba(255, 255, 255, 0.04);
-            color: var(--text);
-            padding: 14px 15px;
-            font: inherit;
-        }
-
-        .auth-meta {
-            margin: 16px 0;
-            color: var(--muted);
-            text-align: center;
-        }
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .social-button[disabled] {
-            opacity: 0.7;
-        }
-
-        .auth-status {
-            min-height: 22px;
-            margin-top: 14px;
-            color: var(--secondary);
-            font-weight: 700;
-        }
-
-        .auth-status.error {
-            color: var(--danger);
-        }
-
-        @media (max-width: 980px) {
-            .hero,
-            .features-grid,
-            .pricing-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .hero-stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 720px) {
-            .nav {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .nav-links {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .auth-grid.two-col,
-            .social-grid,
-            .footer {
-                grid-template-columns: 1fr;
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .hero-card,
-            .hero-side,
-            .feature-card,
-            .pricing-card,
-            .modal-card {
-                padding: 22px;
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BN MENU - Mini City</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{min-height:100vh;font-family:'Rajdhani',sans-serif;color:#f5f7ff;background:radial-gradient(circle at top left,rgba(94,162,255,.18),transparent 24%),radial-gradient(circle at top right,rgba(0,209,178,.14),transparent 20%),linear-gradient(160deg,#050712 0%,#091228 55%,#060816 100%)}a{text-decoration:none;color:inherit}.shell{width:min(1200px,calc(100% - 32px));margin:0 auto}.nav{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:24px 0}.logo,.hero h1,.section h2,.price,.modal-card h3{font-family:'Orbitron',sans-serif}.logo{font-size:28px;font-weight:900}.logo span{color:#00d1b2}.nav-links,.nav-actions{display:flex;align-items:center;gap:14px;flex-wrap:wrap}.nav-links a{color:rgba(245,247,255,.72)}.nav-links a:hover{color:#fff}.hero-card,.hero-side,.feature-card,.pricing-card,.footer,.modal-card{background:rgba(10,18,39,.88);border:1px solid rgba(122,162,255,.18);box-shadow:0 24px 80px rgba(3,8,24,.45);backdrop-filter:blur(18px)}.hero{padding:52px 0 30px;display:grid;grid-template-columns:1.1fr .9fr;gap:26px}.hero-card{border-radius:30px;padding:40px;display:grid;gap:22px}.hero-pill,.status-pill{width:fit-content;padding:10px 16px;border-radius:999px;font-weight:700}.hero-pill{color:#00d1b2;background:rgba(0,209,178,.1);border:1px solid rgba(0,209,178,.24)}.hero h1{font-size:clamp(38px,5vw,64px);line-height:1.04}.hero p,.feature-card p,.pricing-card li,.footer p{color:rgba(245,247,255,.72);line-height:1.55}.hero-actions,.card-actions{display:flex;gap:14px;flex-wrap:wrap}.btn,.ghost,.secondary{border:none;border-radius:14px;padding:12px 18px;font:inherit;font-weight:700;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease}.btn{color:#07111d;background:linear-gradient(135deg,#5ea2ff,#00d1b2);box-shadow:0 16px 40px rgba(0,209,178,.22)}.ghost,.secondary{color:#f5f7ff;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.btn:hover,.ghost:hover,.secondary:hover{transform:translateY(-2px)}.hero-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.stat-chip{border-radius:18px;padding:16px;background:rgba(21,31,60,.72);border:1px solid rgba(255,255,255,.06)}.stat-chip strong{display:block;font-family:'Orbitron',sans-serif;font-size:26px;margin-bottom:6px}.hero-side{border-radius:30px;padding:28px;display:grid;gap:16px}.side-block{border-radius:22px;padding:22px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}.side-block h3,.feature-card h3,.pricing-card h3{margin-bottom:10px;font-size:22px}.section{padding:32px 0}.section-head{display:flex;justify-content:space-between;align-items:end;gap:16px;margin-bottom:24px}.section h2{font-size:34px}.features,.prices{display:grid;gap:18px}.features{grid-template-columns:repeat(3,1fr)}.feature-card,.pricing-card{border-radius:26px;padding:26px}.feature-icon{width:54px;height:54px;display:inline-flex;align-items:center;justify-content:center;border-radius:16px;background:linear-gradient(135deg,rgba(94,162,255,.22),rgba(0,209,178,.16));font-size:24px}.prices{grid-template-columns:repeat(4,1fr)}.pricing-card.featured{border-color:rgba(0,209,178,.34);transform:translateY(-6px)}.tag{display:inline-flex;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.06);font-size:12px;font-weight:700;margin-bottom:12px}.price{margin:14px 0 6px;font-size:38px}.period{color:rgba(245,247,255,.68);margin-bottom:16px}.pricing-list{list-style:none;display:grid;gap:10px;margin-bottom:22px}.pricing-list li::before{content:'•';color:#00d1b2;margin-right:8px}.footer{border-radius:24px 24px 0 0;margin-top:36px;padding:24px 28px 32px;display:flex;justify-content:space-between;gap:16px;align-items:center}.modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(2,6,19,.76);backdrop-filter:blur(12px);z-index:30}.modal.active{display:flex}.modal-card{width:min(520px,100%);border-radius:28px;padding:28px;position:relative}.close{position:absolute;top:16px;right:18px;border:none;background:transparent;color:rgba(245,247,255,.7);font-size:28px;cursor:pointer}.switcher{display:inline-flex;border-radius:16px;background:rgba(255,255,255,.05);padding:4px;gap:4px;margin:18px 0}.tab{border:none;background:transparent;color:rgba(245,247,255,.7);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:700}.tab.active{background:rgba(94,162,255,.18);color:#fff}.panel{display:none}.panel.active{display:block}.form{display:grid;gap:12px}.field{display:grid;gap:8px}.field label{color:rgba(245,247,255,.72);font-weight:600}.field input{width:100%;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.04);color:#fff;padding:14px 15px;font:inherit}.meta{margin:14px 0;color:rgba(245,247,255,.72)}.status-text{min-height:20px;margin-top:12px;font-weight:700;color:#00d1b2}.status-text.error{color:#ff5d73}.hide{display:none!important}@media(max-width:980px){.hero,.features,.prices,.hero-stats{grid-template-columns:1fr}}@media(max-width:720px){.nav,.footer,.section-head{flex-direction:column;align-items:flex-start}}
+</style>
 </head>
 <body>
-    <div class="shell">
-        <nav class="nav">
-            <div class="logo">BN <span>MENU</span></div>
-            <div class="nav-links">
-                <a href="#features">Recursos</a>
-                <a href="#pricing">Planos</a>
-                <a href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Discord</a>
-                <button class="nav-button" id="navAuthButton" onclick="handleAuthButton()">Login</button>
-            </div>
-        </nav>
+<div class="shell">
+<nav class="nav">
+<div class="logo">BN <span>MENU</span></div>
+<div class="nav-links">
+<a href="#features">Features</a>
+<a href="#pricing">Precos</a>
+<a href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Discord</a>
+</div>
+<div class="nav-actions">
+<a class="ghost" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar</a>
+<button class="btn" id="dashboardButton" type="button" onclick="handleMainAction()">Login</button>
+<button class="secondary hide" id="logoutButton" type="button" onclick="logout()">Sair</button>
+</div>
+</nav>
 
-        <section class="hero">
-            <article class="hero-card">
-                <div class="hero-pill">Portal com acesso por conta e dashboard integrado</div>
-                <h1>Controle seu acesso, suas keys e a atividade do script em um lugar so.</h1>
-                <p>
-                    O BN MENU agora entra com um portal real: usuario comum faz login, admin abre o dashboard
-                    completo e o painel centraliza keys, webhook e atividade recente com uma interface bem mais limpa.
-                </p>
-                <div class="hero-actions">
-                    <button class="primary-button" onclick="openModal('login')">Entrar no portal</button>
-                    <a class="ghost-button" href="#pricing">Ver planos</a>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat-chip">
-                        <strong>1</strong>
-                        <span>Conta central por usuario</span>
-                    </div>
-                    <div class="stat-chip">
-                        <strong>3</strong>
-                        <span>Fluxos integrados: login, keys e webhook</span>
-                    </div>
-                    <div class="stat-chip">
-                        <strong>24/7</strong>
-                        <span>Painel acessivel sempre que a API estiver online</span>
-                    </div>
-                </div>
-            </article>
+<section class="hero">
+<article class="hero-card">
+<div class="hero-pill">Mini City script premium</div>
+<h1>BN MENU para Mini City com combate, ESP, movimento e utilitarios de jogo.</h1>
+<p>O site volta ao foco certo: vender o seu menu de Roblox para Mini City, com visual moderno, login por email e area de admin separada para keys, webhook e historico.</p>
+<div class="hero-actions">
+<a class="btn" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar agora</a>
+<a class="ghost" href="#features">Ver features</a>
+</div>
+<div class="hero-stats">
+<div class="stat-chip"><strong>Mini City</strong><span>Script focado no jogo certo</span></div>
+<div class="stat-chip"><strong>Premium</strong><span>Features de combate, ESP e movimento</span></div>
+<div class="stat-chip"><strong>Discord</strong><span>Compra e suporte no servidor oficial</span></div>
+</div>
+</article>
+<aside class="hero-side">
+<div class="side-block"><h3>Combat avancado</h3><p>Aimbot, resolver, backtrack, hitbox e mais recursos para dominar o PVP de Mini City.</p></div>
+<div class="side-block"><h3>ESP ultra avancado</h3><p>Glow, snaplines, weapon ESP e leitura visual forte para acompanhar tudo no mapa.</p></div>
+<div class="side-block"><h3>Movement e utilitarios</h3><p>Fly, speed, bunny hop, infinite jump, auto jobs e funcoes do proprio menu sem desviar o foco do produto.</p></div>
+</aside>
+</section>
 
-            <aside class="hero-side">
-                <div class="panel-block">
-                    <h3>Login e cadastro</h3>
-                    <p>Cadastro por email com senha e confirmacao. Google e GitHub ja ficam preparados visualmente para uma proxima etapa.</p>
-                </div>
-                <div class="panel-block">
-                    <h3>Dashboard por papel</h3>
-                    <p>Usuario comum ve a conta dele. Admin enxerga chaves, atividade do script e configuracao de webhook no mesmo painel.</p>
-                </div>
-                <div class="panel-block">
-                    <h3>Feed de atividade</h3>
-                    <p>O script passa a mandar metadados de uso para o painel, facilitando suporte e auditoria sem jogar o controle fora do site.</p>
-                </div>
-            </aside>
-        </section>
+<section class="section" id="features">
+<div class="section-head">
+<div><h2>Features premium</h2><p class="meta">As vantagens principais continuam no site, agora com o visual novo e sem o card de exploits especiais.</p></div>
+</div>
+<div class="features">
+<article class="feature-card"><div class="feature-icon">C</div><h3>Combat avancado</h3><p>Aimbot, resolver, backtrack, hitbox expander e outras funcoes de combate para Mini City.</p></article>
+<article class="feature-card"><div class="feature-icon">E</div><h3>ESP ultra avancado</h3><p>Chams, glow ESP, weapon ESP, cores por distancia e visao total do servidor.</p></article>
+<article class="feature-card"><div class="feature-icon">M</div><h3>Movement premium</h3><p>Fly, speed hack, wall walk, bunny hop e infinite jump para mobilidade total.</p></article>
+<article class="feature-card"><div class="feature-icon">J</div><h3>Jobs e utilitarios</h3><p>Auto jobs, funcoes de farm e recursos do menu pensados para a rotina do jogador em Mini City.</p></article>
+<article class="feature-card"><div class="feature-icon">A</div><h3>Anti-detection</h3><p>Sistema para reduzir exposicao e manter seu uso mais controlado dentro do jogo.</p></article>
+<article class="feature-card"><div class="feature-icon">S</div><h3>Config system</h3><p>Salve e carregue configuracoes do seu menu com rapidez quando quiser trocar de setup.</p></article>
+</div>
+</section>
 
-        <section class="section" id="features">
-            <div class="section-head">
-                <div>
-                    <h2>Recursos do portal</h2>
-                    <p>Tudo pensado para deixar a entrada no site e o painel muito mais organizados.</p>
-                </div>
-            </div>
-            <div class="features-grid">
-                <article class="feature-card">
-                    <div class="feature-icon">L</div>
-                    <h3>Login central</h3>
-                    <p>O antigo botao de admin vira a entrada do portal, com fluxo de login e cadastro no proprio site.</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-icon">K</div>
-                    <h3>Painel de keys</h3>
-                    <p>Admin gera, copia, reseta HWID, consulta detalhes e deleta keys sem sair do dashboard.</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-icon">A</div>
-                    <h3>Atividade recente</h3>
-                    <p>O painel lista a atividade segura enviada pelo script, ajudando no suporte sem espalhar tudo em servicos externos.</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-icon">P</div>
-                    <h3>Portal web</h3>
-                    <p>O card de exploits avancados sai e entra um foco real em dashboard, conta, webhook e gestao do acesso.</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-icon">W</div>
-                    <h3>Webhook interno</h3>
-                    <p>O admin salva e testa um webhook diretamente no painel, sem precisar ficar editando tudo na mao.</p>
-                </article>
-                <article class="feature-card">
-                    <div class="feature-icon">S</div>
-                    <h3>Separacao por papel</h3>
-                    <p>Conta comum nao recebe poderes de admin. Quando um admin entra, o dashboard completo aparece automaticamente.</p>
-                </article>
-            </div>
-        </section>
+<section class="section" id="pricing">
+<div class="section-head">
+<div><h2>Escolha seu plano</h2><p class="meta">Precos mantidos do site original, com as vantagens antigas e link novo de compra no Discord.</p></div>
+</div>
+<div class="prices">
+<article class="pricing-card">
+<h3>Diario</h3>
+<div class="price">R$ 5</div>
+<div class="period">por 24 horas</div>
+<ul class="pricing-list">
+<li>Todas as features</li>
+<li>Suporte no Discord</li>
+<li>Updates automaticos</li>
+<li>1 dispositivo</li>
+</ul>
+<a class="btn" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar</a>
+</article>
+<article class="pricing-card featured">
+<div class="tag">POPULAR</div>
+<h3>Semanal</h3>
+<div class="price">R$ 15</div>
+<div class="period">por 7 dias</div>
+<ul class="pricing-list">
+<li>Todas as features</li>
+<li>Suporte prioritario</li>
+<li>Updates automaticos</li>
+<li>2 dispositivos</li>
+<li>Configs exclusivas</li>
+</ul>
+<a class="btn" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar</a>
+</article>
+<article class="pricing-card">
+<h3>Mensal</h3>
+<div class="price">R$ 40</div>
+<div class="period">por 30 dias</div>
+<ul class="pricing-list">
+<li>Todas as features</li>
+<li>Suporte VIP</li>
+<li>Updates automaticos</li>
+<li>3 dispositivos</li>
+<li>Configs exclusivas</li>
+<li>Acesso antecipado</li>
+</ul>
+<a class="btn" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar</a>
+</article>
+<article class="pricing-card">
+<div class="tag">MELHOR VALOR</div>
+<h3>Vitalicio</h3>
+<div class="price">R$ 100</div>
+<div class="period">para sempre</div>
+<ul class="pricing-list">
+<li>Todas as features</li>
+<li>Suporte VIP vitalicio</li>
+<li>Updates vitalicios</li>
+<li>Dispositivos ilimitados</li>
+<li>Configs exclusivas</li>
+<li>Acesso antecipado</li>
+<li>Badge exclusiva</li>
+</ul>
+<a class="btn" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Comprar</a>
+</article>
+</div>
+</section>
+</div>
 
-        <section class="section" id="pricing">
-            <div class="section-head">
-                <div>
-                    <h2>Planos de acesso</h2>
-                    <p>Os planos continuam do jeito que o portal ja trabalhava, agora com uma experiencia de conta melhor.</p>
-                </div>
-            </div>
-            <div class="pricing-grid">
-                <article class="pricing-card">
-                    <h3>Diario</h3>
-                    <div class="price">R$ 5</div>
-                    <div class="price-period">24 horas</div>
-                    <ul class="pricing-list">
-                        <li>Acesso completo</li>
-                        <li>1 dispositivo</li>
-                        <li>Suporte basico</li>
-                        <li>Atualizacoes do periodo</li>
-                    </ul>
-                    <a class="ghost-button" href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Comprar</a>
-                </article>
-                <article class="pricing-card featured">
-                    <h3>Semanal</h3>
-                    <div class="price">R$ 15</div>
-                    <div class="price-period">7 dias</div>
-                    <ul class="pricing-list">
-                        <li>Acesso completo</li>
-                        <li>2 dispositivos</li>
-                        <li>Suporte prioritario</li>
-                        <li>Mais praticidade para revenda</li>
-                    </ul>
-                    <a class="primary-button" href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Comprar</a>
-                </article>
-                <article class="pricing-card">
-                    <h3>Mensal</h3>
-                    <div class="price">R$ 40</div>
-                    <div class="price-period">30 dias</div>
-                    <ul class="pricing-list">
-                        <li>Acesso completo</li>
-                        <li>3 dispositivos</li>
-                        <li>Suporte VIP</li>
-                        <li>Atualizacoes continuas</li>
-                    </ul>
-                    <a class="ghost-button" href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Comprar</a>
-                </article>
-                <article class="pricing-card">
-                    <h3>Vitalicio</h3>
-                    <div class="price">R$ 100</div>
-                    <div class="price-period">para sempre</div>
-                    <ul class="pricing-list">
-                        <li>Acesso completo</li>
-                        <li>Prioridade maxima</li>
-                        <li>Updates continuos</li>
-                        <li>Perfil ideal para admin</li>
-                    </ul>
-                    <a class="ghost-button" href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Comprar</a>
-                </article>
-            </div>
-        </section>
-    </div>
+<footer class="footer shell">
+<div>
+<div class="logo">BN <span>MENU</span></div>
+<p>Menu premium para Mini City com venda pelo Discord e area de admin separada para quem gerencia o sistema.</p>
+</div>
+<a class="ghost" href="https://discord.gg/invite/yDeTDQ7mKN" target="_blank" rel="noreferrer">Entrar no Discord</a>
+</footer>
 
-    <footer class="footer shell">
-        <div>
-            <div class="logo">BN <span>MENU</span></div>
-            <p>Portal atualizado com login por conta, dashboard unificado e fluxo pronto para crescer.</p>
-        </div>
-        <a class="ghost-button" href="https://discord.gg/PWv7AYyU" target="_blank" rel="noreferrer">Entrar no Discord</a>
-    </footer>
+<div class="modal" id="authModal">
+<div class="modal-card">
+<button class="close" type="button" onclick="closeModal()">&times;</button>
+<h3>Entrar no site</h3>
+<p class="meta">Login apenas com email. Se for admin, a dashboard abre; se for usuario comum, voce continua na tela de compra e pode sair da conta quando quiser.</p>
+<div class="switcher">
+<button class="tab active" data-tab="login" type="button" onclick="setTab('login')">Login</button>
+<button class="tab" data-tab="register" type="button" onclick="setTab('register')">Criar conta</button>
+</div>
+<div class="panel active" id="loginPanel">
+<form class="form" onsubmit="login(event)">
+<div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" required></div>
+<div class="field"><label for="loginPassword">Senha</label><input id="loginPassword" type="password" required></div>
+<button class="btn" type="submit">Entrar</button>
+</form>
+</div>
+<div class="panel" id="registerPanel">
+<form class="form" onsubmit="registerAccount(event)">
+<div class="field"><label for="registerName">Nome</label><input id="registerName" type="text" required></div>
+<div class="field"><label for="registerEmail">Email</label><input id="registerEmail" type="email" required></div>
+<div class="field"><label for="registerPassword">Senha</label><input id="registerPassword" type="password" required></div>
+<div class="field"><label for="registerConfirmPassword">Confirmar senha</label><input id="registerConfirmPassword" type="password" required></div>
+<button class="btn" type="submit">Criar conta</button>
+</form>
+</div>
+<div class="status-text" id="statusText"></div>
+</div>
+</div>
 
-    <div class="modal" id="authModal">
-        <div class="modal-card">
-            <button class="close-button" onclick="closeModal()">&times;</button>
-            <h2>Entrar no portal</h2>
-            <p class="auth-meta">Use email e senha agora. Google e GitHub ficam preparados para uma conexao futura de provedor.</p>
-
-            <div class="auth-switcher">
-                <button class="auth-tab active" data-auth-tab="login" onclick="setAuthView('login')">Login</button>
-                <button class="auth-tab" data-auth-tab="register" onclick="setAuthView('register')">Criar conta</button>
-            </div>
-
-            <div class="auth-panel active" id="loginPanel">
-                <form class="auth-grid" onsubmit="handleLogin(event)">
-                    <div class="field">
-                        <label for="loginIdentifier">Usuario ou email</label>
-                        <input id="loginIdentifier" type="text" required>
-                    </div>
-                    <div class="field">
-                        <label for="loginPassword">Senha</label>
-                        <input id="loginPassword" type="password" required>
-                    </div>
-                    <button class="auth-submit" type="submit">Entrar</button>
-                </form>
-            </div>
-
-            <div class="auth-panel" id="registerPanel">
-                <form class="auth-grid" onsubmit="handleRegister(event)">
-                    <div class="auth-grid two-col">
-                        <div class="field">
-                            <label for="registerUsername">Usuario</label>
-                            <input id="registerUsername" type="text" required>
-                        </div>
-                        <div class="field">
-                            <label for="registerDisplayName">Nome</label>
-                            <input id="registerDisplayName" type="text" required>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label for="registerEmail">Email</label>
-                        <input id="registerEmail" type="email" required>
-                    </div>
-                    <div class="auth-grid two-col">
-                        <div class="field">
-                            <label for="registerPassword">Senha</label>
-                            <input id="registerPassword" type="password" required>
-                        </div>
-                        <div class="field">
-                            <label for="registerConfirmPassword">Confirmar senha</label>
-                            <input id="registerConfirmPassword" type="password" required>
-                        </div>
-                    </div>
-                    <button class="auth-submit" type="submit">Criar conta</button>
-                </form>
-            </div>
-
-            <p class="auth-meta">Ou continue quando voce configurar OAuth no futuro</p>
-            <div class="social-grid">
-                <button class="social-button" type="button" onclick="showOAuthNotice('Google')">Continuar com Google</button>
-                <button class="social-button" type="button" onclick="showOAuthNotice('GitHub')">Continuar com GitHub</button>
-            </div>
-
-            <div class="auth-status" id="authStatus"></div>
-        </div>
-    </div>
-
-    <script>
-        const API_URL = window.location.hostname === 'localhost'
-            ? 'http://localhost:3000/api'
-            : 'https://bn-menu-api.onrender.com/api';
-        const TOKEN_KEY = 'bn_menu_token';
-
-        function getToken() {
-            return localStorage.getItem(TOKEN_KEY) || '';
-        }
-
-        function setToken(token) {
-            localStorage.setItem(TOKEN_KEY, token);
-        }
-
-        function clearToken() {
-            localStorage.removeItem(TOKEN_KEY);
-        }
-
-        function setStatus(message, isError = false) {
-            const status = document.getElementById('authStatus');
-            status.textContent = message;
-            status.className = isError ? 'auth-status error' : 'auth-status';
-        }
-
-        async function apiRequest(path, options = {}) {
-            const requestOptions = {
-                method: options.method || 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(options.headers || {})
-                }
-            };
-
-            if (options.auth !== false && getToken()) {
-                requestOptions.headers.Authorization = `Bearer ${getToken()}`;
-            }
-
-            if (options.body !== undefined) {
-                requestOptions.body = JSON.stringify(options.body);
-            }
-
-            const response = await fetch(`${API_URL}${path}`, requestOptions);
-            const payload = await response.json().catch(() => ({
-                success: false,
-                message: 'Resposta invalida da API.'
-            }));
-
-            if (!response.ok || !payload.success) {
-                throw new Error(payload.message || 'Nao foi possivel concluir a requisicao.');
-            }
-
-            return payload;
-        }
-
-        function updateAuthButton() {
-            const button = document.getElementById('navAuthButton');
-            button.textContent = getToken() ? 'Dashboard' : 'Login';
-        }
-
-        function handleAuthButton() {
-            if (getToken()) {
-                window.location.href = 'admin.html';
-                return;
-            }
-
-            openModal('login');
-        }
-
-        function openModal(view = 'login') {
-            document.getElementById('authModal').classList.add('active');
-            setAuthView(view);
-            setStatus('');
-        }
-
-        function closeModal() {
-            document.getElementById('authModal').classList.remove('active');
-        }
-
-        function setAuthView(view) {
-            document.querySelectorAll('[data-auth-tab]').forEach((element) => {
-                element.classList.toggle('active', element.dataset.authTab === view);
-            });
-
-            document.getElementById('loginPanel').classList.toggle('active', view === 'login');
-            document.getElementById('registerPanel').classList.toggle('active', view === 'register');
-            setStatus('');
-        }
-
-        async function handleLogin(event) {
-            event.preventDefault();
-            setStatus('Entrando...');
-
-            try {
-                const payload = await apiRequest('/auth/login', {
-                    method: 'POST',
-                    auth: false,
-                    body: {
-                        identifier: document.getElementById('loginIdentifier').value,
-                        password: document.getElementById('loginPassword').value
-                    }
-                });
-
-                setToken(payload.data.token);
-                updateAuthButton();
-                window.location.href = 'admin.html';
-            } catch (error) {
-                setStatus(error.message, true);
-            }
-        }
-
-        async function handleRegister(event) {
-            event.preventDefault();
-            setStatus('Criando conta...');
-
-            try {
-                const payload = await apiRequest('/auth/register', {
-                    method: 'POST',
-                    auth: false,
-                    body: {
-                        username: document.getElementById('registerUsername').value,
-                        displayName: document.getElementById('registerDisplayName').value,
-                        email: document.getElementById('registerEmail').value,
-                        password: document.getElementById('registerPassword').value,
-                        confirmPassword: document.getElementById('registerConfirmPassword').value
-                    }
-                });
-
-                setToken(payload.data.token);
-                updateAuthButton();
-                window.location.href = 'admin.html';
-            } catch (error) {
-                setStatus(error.message, true);
-            }
-        }
-
-        function showOAuthNotice(provider) {
-            setStatus(`${provider} fica pronto quando voce conectar as chaves do provedor. O login por email ja esta funcionando.`, true);
-        }
-
-        window.addEventListener('click', (event) => {
-            if (event.target.id === 'authModal') {
-                closeModal();
-            }
-        });
-
-        updateAuthButton();
-    </script>
+<script>
+const API=location.hostname==='localhost'?'http://localhost:3000/api':'https://bn-menu-api.onrender.com/api';
+const TOKEN_KEY='bn_menu_token';
+const ROLE_KEY='bn_menu_role';
+const NAME_KEY='bn_menu_name';
+const getToken=()=>localStorage.getItem(TOKEN_KEY)||'';
+const getRole=()=>localStorage.getItem(ROLE_KEY)||'';
+const setSession=(token,user)=>{localStorage.setItem(TOKEN_KEY,token);localStorage.setItem(ROLE_KEY,user.role||'user');localStorage.setItem(NAME_KEY,user.displayName||user.email||'Conta')};
+const clearSession=()=>{localStorage.removeItem(TOKEN_KEY);localStorage.removeItem(ROLE_KEY);localStorage.removeItem(NAME_KEY)};
+function setStatus(text,error){const el=document.getElementById('statusText');el.textContent=text;el.className=error?'status-text error':'status-text'}
+async function req(path,options={}){const request={method:options.method||'GET',headers:{'Content-Type':'application/json',...(options.headers||{})}};if(getToken()&&options.auth!==false)request.headers.Authorization=`Bearer ${getToken()}`;if(options.body!==undefined)request.body=JSON.stringify(options.body);const res=await fetch(API+path,request);const data=await res.json().catch(()=>({success:false,message:'Resposta invalida da API.'}));if(!res.ok||!data.success)throw new Error(data.message||'Falha na requisicao.');return data}
+function updateButtons(){const role=getRole();const dash=document.getElementById('dashboardButton');const logout=document.getElementById('logoutButton');if(!getToken()){dash.textContent='Login';logout.classList.add('hide');return}if(role==='admin'){dash.textContent='Dashboard';logout.classList.remove('hide');return}dash.textContent='Sair';logout.classList.add('hide')}
+function handleMainAction(){if(!getToken()){openModal();return}if(getRole()==='admin'){location.href='admin.html';return}logout()}
+function openModal(){document.getElementById('authModal').classList.add('active');setTab('login');setStatus('',false)}
+function closeModal(){document.getElementById('authModal').classList.remove('active')}
+function setTab(tab){document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===tab));document.getElementById('loginPanel').classList.toggle('active',tab==='login');document.getElementById('registerPanel').classList.toggle('active',tab==='register');setStatus('',false)}
+async function login(event){event.preventDefault();setStatus('Entrando...',false);try{const payload=await req('/auth/login',{method:'POST',auth:false,body:{identifier:document.getElementById('loginEmail').value,password:document.getElementById('loginPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();if(payload.data.user.role==='admin'){location.href='admin.html';return}closeModal();setStatus('',false)}catch(error){setStatus(error.message,true)}}
+async function registerAccount(event){event.preventDefault();setStatus('Criando conta...',false);try{const payload=await req('/auth/register',{method:'POST',auth:false,body:{displayName:document.getElementById('registerName').value,email:document.getElementById('registerEmail').value,password:document.getElementById('registerPassword').value,confirmPassword:document.getElementById('registerConfirmPassword').value}});setSession(payload.data.token,payload.data.user);updateButtons();closeModal()}catch(error){setStatus(error.message,true)}}
+async function validateSession(){if(!getToken())return;try{const me=await req('/auth/me');setSession(getToken(),me.data.user);updateButtons()}catch(error){clearSession();updateButtons()}}
+function logout(){clearSession();updateButtons()}
+window.addEventListener('click',event=>{if(event.target.id==='authModal')closeModal()});
+updateButtons();validateSession();
+</script>
 </body>
 </html>
