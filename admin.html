@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BN MENU - Painel Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #8b5cf6;
+            --secondary: #ec4899;
+            --accent: #06b6d4;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --dark: #0f0f23;
+            --darker: #050510;
+            --light: #ffffff;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--darker);
+            color: var(--light);
+        }
+        
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a0b2e 50%, #16213e 100%);
+        }
+        
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: moveGrid 20s linear infinite;
+        }
+        
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(15, 15, 35, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .user-badge {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 700;
+        }
+        
+        .btn-logout {
+            padding: 10px 25px;
+            background: var(--danger);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(239, 68, 68, 0.4);
+        }
+        
+        /* Container */
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .stat-card {
+            background: rgba(139, 92, 246, 0.05);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(236, 72, 153, 0.1));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.3);
+        }
+        
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+        
+        .stat-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 36px;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Section */
+        .section {
+            background: rgba(15, 15, 35, 0.6);
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            border-radius: 25px;
+            padding: 35px;
+            margin-bottom: 30px;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 28px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Form */
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 12px;
+            color: white;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+        }
+        
+        .btn-generate {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(139, 92, 246, 0.4);
+        }
+        
+        .btn-generate:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6);
+        }
+        
+        /* Table */
+        .table-container {
+            overflow-x: auto;
+            border-radius: 15px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        thead {
+            background: rgba(139, 92, 246, 0.1);
+        }
+        
+        th {
+            padding: 20px;
+            text-align: left;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            color: var(--primary);
+            border-bottom: 2px solid rgba(139, 92, 246, 0.3);
+        }
+        
+        td {
+            padding: 18px 20px;
+            border-bottom: 1px solid rgba(139, 92, 246, 0.1);
+        }
+        
+        tbody tr {
+            transition: all 0.3s;
+        }
+        
+        tbody tr:hover {
+            background: rgba(139, 92, 246, 0.05);
+        }
+        
+        .status-badge {
+            padding: 6px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+        
+        .status-expired {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .btn-action {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-right: 8px;
+            font-size: 13px;
+        }
+        
+        .btn-copy {
+            background: rgba(6, 182, 212, 0.2);
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+        
+        .btn-copy:hover {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .btn-delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+        }
+        
+        .btn-delete:hover {
+            background: var(--danger);
+            color: white;
+        }
+        
+        /* Message */
+        .message {
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .message.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        code {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            color: var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="logo">BN MENU ADMIN</div>
+        <div class="user-info">
+            <span class="user-badge">👑 eabn8</span>
+            <button class="btn-logout" onclick="logout()">Sair</button>
+        </div>
+    </div>
+    
+    <!-- Container -->
+    <div class="container">
+        <!-- Message -->
+        <div id="message" class="message"></div>
+        
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">🔑</div>
+                <div class="stat-label">Total de Keys</div>
+                <div class="stat-value" id="totalKeys">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-label">Keys Ativas</div>
+                <div class="stat-value" id="activeKeys">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">❌</div>
+                <div class="stat-label">Keys Expiradas</div>
+                <div class="stat-value" id="expiredKeys">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-label">Usuários Únicos</div>
+                <div class="stat-value" id="uniqueUsers">0</div>
+            </div>
+        </div>
+        
+        <!-- Generate Keys -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">📝 Gerar Novas Keys</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-action btn-delete" onclick="deleteAllKeys()" style="padding: 10px 20px;">Deletar Todas</button>
+                    <button class="btn-action btn-delete" onclick="deleteKeysByType()" style="padding: 10px 20px;">Deletar por Tipo</button>
+                </div>
+            </div>
+            
+            <div class="form-grid">
+                <div class="form-group">
+                    <input type="number" id="keyQuantity" placeholder="Quantidade" value="10" min="1" max="1000">
+                </div>
+                <div class="form-group">
+                    <select id="keyType">
+                        <option value="daily">Diária (24h)</option>
+                        <option value="weekly">Semanal (7 dias)</option>
+                        <option value="monthly">Mensal (30 dias)</option>
+                        <option value="lifetime">Vitalícia</option>
+                        <option value="dev">DEV (Acesso Total)</option>
+                    </select>
+                </div>
+                <button class="btn-generate" onclick="generateKeys()">Gerar Keys</button>
+            </div>
+        </div>
+        
+        <!-- Keys List -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">🔑 Keys Geradas</h2>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Tipo</th>
+                            <th>Status</th>
+                            <th>Criada em</th>
+                            <th>Expira em</th>
+                            <th>Dispositivos</th>
+                            <th>Usuário</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="keysBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Users Management -->
+        <div class="section">
+            <div class="section-header">
+                <h2 class="section-title">👥 Gerenciar Usuários</h2>
+            </div>
+            
+            <div class="form-grid" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <input type="text" id="userSearch" placeholder="Buscar usuário...">
+                </div>
+                <button class="btn-generate" onclick="searchUsers()">Buscar</button>
+            </div>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Usuário</th>
+                            <th>Keys Ativas</th>
+                            <th>Último Acesso</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Dados
+        let keys = JSON.parse(localStorage.getItem('bn_keys')) || {};
+        
+        // Carregar dashboard
+        function loadDashboard() {
+            updateStats();
+            loadKeys();
+            loadUsers();
+        }
+        
+        // Atualizar estatísticas
+        function updateStats() {
+            const keyList = Object.values(keys);
+            const now = new Date();
+            
+            let active = 0;
+            let expired = 0;
+            
+            keyList.forEach(key => {
+                const created = new Date(key.created);
+                const expiryTime = getExpiryTime(key.type);
+                const expiry = new Date(created.getTime() + expiryTime);
+                
+                if (expiry > now || expiryTime === Infinity) {
+                    active++;
+                } else {
+                    expired++;
+                }
+            });
+            
+            const uniqueUsers = new Set(Object.values(keys).map(k => k.user).filter(u => u)).size;
+            
+            document.getElementById('totalKeys').textContent = keyList.length;
+            document.getElementById('activeKeys').textContent = active;
+            document.getElementById('expiredKeys').textContent = expired;
+            document.getElementById('uniqueUsers').textContent = uniqueUsers;
+        }
+        
+        // Tempo de expiração
+        function getExpiryTime(type) {
+            const times = {
+                'daily': 86400000,
+                'weekly': 604800000,
+                'monthly': 2592000000,
+                'lifetime': Infinity,
+                'dev': Infinity
+            };
+            return times[type] || 0;
+        }
+        
+        // Gerar keys
+        function generateKeys() {
+            const quantity = parseInt(document.getElementById('keyQuantity').value);
+            const type = document.getElementById('keyType').value;
+            
+            const maxDevicesByType = {
+                'daily': 1,
+                'weekly': 2,
+                'monthly': 3,
+                'lifetime': 5,
+                'dev': 999
+            };
+            
+            for (let i = 0; i < quantity; i++) {
+                const key = generateRandomKey(type);
+                keys[key] = {
+                    type: type,
+                    created: new Date().toISOString(),
+                    user: null,
+                    active: true,
+                    devices: [],
+                    maxDevices: maxDevicesByType[type]
+                };
+            }
+            
+            localStorage.setItem('bn_keys', JSON.stringify(keys));
+            loadDashboard();
+            showMessage(`✅ ${quantity} keys geradas com sucesso!`, 'success');
+        }
+        
+        // Gerar key aleatória (formato: diaria-abc123)
+        function generateRandomKey(type) {
+            const typeNames = {
+                'daily': 'diaria',
+                'weekly': 'semanal',
+                'monthly': 'mensal',
+                'lifetime': 'vitalicia',
+                'dev': 'dev'
+            };
+            const prefix = typeNames[type];
+            const random = Math.random().toString(36).substring(2, 15);
+            return `${prefix}-${random}`;
+        }
+        
+        // Carregar keys
+        function loadKeys() {
+            const tbody = document.getElementById('keysBody');
+            tbody.innerHTML = '';
+            
+            const now = new Date();
+            
+            Object.entries(keys).forEach(([key, data]) => {
+                const created = new Date(data.created);
+                const expiryTime = getExpiryTime(data.type);
+                const expiry = new Date(created.getTime() + expiryTime);
+                
+                const isActive = expiry > now || expiryTime === Infinity;
+                const statusClass = isActive ? 'status-active' : 'status-expired';
+                const statusText = isActive ? '✅ Ativa' : '❌ Expirada';
+                
+                const devices = data.devices || [];
+                const deviceCount = devices.length;
+                const maxDevices = data.maxDevices || 1;
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><code>${key}</code></td>
+                    <td>${data.type}</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                    <td>${created.toLocaleDateString('pt-BR')}</td>
+                    <td>${expiryTime === Infinity ? '∞' : expiry.toLocaleDateString('pt-BR')}</td>
+                    <td>${deviceCount}/${maxDevices}</td>
+                    <td>${data.user || '-'}</td>
+                    <td>
+                        <button class="btn-action btn-copy" onclick="copyToClipboard('${key}')">Copiar</button>
+                        <button class="btn-action" onclick="openKeySettings('${key}')" style="background: rgba(139, 92, 246, 0.2); color: var(--primary); border: 1px solid var(--primary);">⚙️</button>
+                        <button class="btn-action btn-delete" onclick="deleteKey('${key}')">Deletar</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Carregar usuários
+        function loadUsers() {
+            const tbody = document.getElementById('usersBody');
+            tbody.innerHTML = '';
+            
+            const userList = {};
+            Object.entries(keys).forEach(([key, data]) => {
+                if (data.user) {
+                    if (!userList[data.user]) {
+                        userList[data.user] = { keys: 0, lastAccess: data.created };
+                    }
+                    userList[data.user].keys++;
+                    userList[data.user].lastAccess = data.created;
+                }
+            });
+            
+            Object.entries(userList).forEach(([user, data]) => {
+                const row = document.createElement('tr');
+                const lastAccess = new Date(data.lastAccess).toLocaleDateString('pt-BR');
+                row.innerHTML = `
+                    <td>${user}</td>
+                    <td>${data.keys}</td>
+                    <td>${lastAccess}</td>
+                    <td>
+                        <button class="btn-action btn-delete" onclick="deleteUser('${user}')">Remover</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        // Copiar para clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text);
+            showMessage('✅ Key copiada para a área de transferência!', 'success');
+        }
+        
+        // Deletar todas as keys
+        function deleteAllKeys() {
+            if (confirm('⚠️ TEM CERTEZA que deseja deletar TODAS as keys? Esta ação não pode ser desfeita!')) {
+                if (confirm('⚠️ Última confirmação! Deletar TODAS as ' + Object.keys(keys).length + ' keys?')) {
+                    keys = {};
+                    localStorage.setItem('bn_keys', JSON.stringify(keys));
+                    loadDashboard();
+                    showMessage('✅ Todas as keys foram deletadas!', 'success');
+                }
+            }
+        }
+        
+        // Deletar keys por tipo
+        function deleteKeysByType() {
+            const type = prompt('Digite o tipo de key para deletar:\n\ndaily\nweekly\nmonthly\nlifetime\ndev');
+            if (!type) return;
+            
+            const keysToDelete = Object.entries(keys).filter(([k, v]) => v.type === type);
+            
+            if (keysToDelete.length === 0) {
+                showMessage('❌ Nenhuma key do tipo "' + type + '" encontrada!', 'error');
+                return;
+            }
+            
+            if (confirm(`Deletar ${keysToDelete.length} keys do tipo "${type}"?`)) {
+                keysToDelete.forEach(([key]) => {
+                    delete keys[key];
+                });
+                localStorage.setItem('bn_keys', JSON.stringify(keys));
+                loadDashboard();
+                showMessage(`✅ ${keysToDelete.length} keys do tipo "${type}" foram deletadas!`, 'success');
+            }
+        }
+        
+        // Abrir configurações da key
+        function openKeySettings(key) {
+            const data = keys[key];
+            const devices = data.devices || [];
+            const maxDevices = data.maxDevices || 1;
+            
+            let deviceList = devices.length > 0 ? devices.map((d, i) => `${i + 1}. ${d}`).join('\n') : 'Nenhum dispositivo conectado';
+            
+            const action = prompt(
+                `⚙️ CONFIGURAÇÕES DA KEY: ${key}\n\n` +
+                `Tipo: ${data.type}\n` +
+                `Dispositivos: ${devices.length}/${maxDevices}\n\n` +
+                `Dispositivos conectados:\n${deviceList}\n\n` +
+                `Digite:\n` +
+                `1 - Resetar HWID (limpar dispositivos)\n` +
+                `2 - Alterar limite de dispositivos\n` +
+                `3 - Ver detalhes\n` +
+                `0 - Cancelar`
+            );
+            
+            if (action === '1') {
+                if (confirm('Resetar HWID desta key? Todos os dispositivos serão removidos.')) {
+                    keys[key].devices = [];
+                    keys[key].user = null;
+                    localStorage.setItem('bn_keys', JSON.stringify(keys));
+                    loadDashboard();
+                    showMessage('✅ HWID resetado com sucesso!', 'success');
+                }
+            } else if (action === '2') {
+                const newLimit = prompt('Digite o novo limite de dispositivos:', maxDevices);
+                if (newLimit && !isNaN(newLimit)) {
+                    keys[key].maxDevices = parseInt(newLimit);
+                    localStorage.setItem('bn_keys', JSON.stringify(keys));
+                    loadDashboard();
+                    showMessage('✅ Limite de dispositivos atualizado!', 'success');
+                }
+            } else if (action === '3') {
+                alert(
+                    `🔑 DETALHES DA KEY\n\n` +
+                    `Key: ${key}\n` +
+                    `Tipo: ${data.type}\n` +
+                    `Criada: ${new Date(data.created).toLocaleString('pt-BR')}\n` +
+                    `Dispositivos: ${devices.length}/${maxDevices}\n` +
+                    `Usuário: ${data.user || 'Nenhum'}\n` +
+                    `Status: ${data.active ? 'Ativa' : 'Inativa'}`
+                );
+            }
+        }
+        
+        // Deletar key
+        function deleteKey(key) {
+            if (confirm('Tem certeza que deseja deletar esta key?')) {
+                delete keys[key];
+                localStorage.setItem('bn_keys', JSON.stringify(keys));
+                loadDashboard();
+                showMessage('✅ Key deletada com sucesso!', 'success');
+            }
+        }
+        
+        // Deletar usuário
+        function deleteUser(user) {
+            if (confirm(`Tem certeza que deseja remover o usuário ${user}?`)) {
+                Object.keys(keys).forEach(key => {
+                    if (keys[key].user === user) {
+                        keys[key].user = null;
+                    }
+                });
+                localStorage.setItem('bn_keys', JSON.stringify(keys));
+                loadDashboard();
+                showMessage('✅ Usuário removido com sucesso!', 'success');
+            }
+        }
+        
+        // Buscar usuários
+        function searchUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const tbody = document.getElementById('usersBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                const user = row.cells[0].textContent.toLowerCase();
+                row.style.display = user.includes(search) ? '' : 'none';
+            });
+        }
+        
+        // Mostrar mensagem
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.textContent = text;
+            messageDiv.className = `message ${type}`;
+            messageDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Logout
+        function logout() {
+            if (confirm('Deseja realmente sair?')) {
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // Carregar ao iniciar
+        window.addEventListener('load', loadDashboard);
+    </script>
+</body>
+</html>
