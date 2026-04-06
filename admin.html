@@ -25,10 +25,10 @@
 <main class="page">
 <section class="hero">
 <article class="panel">
-<div class="chip admin">Conta admin</div>
-<h1 class="title" style="margin-top:12px">Dashboard do BN MENU para Mini City</h1>
-<p class="muted">Aqui voce gerencia keys, webhook, usuarios e historico do script sem mexer na pagina de venda do menu.</p>
-<div class="panel" style="margin-top:16px;padding:16px">Use key customizada quando quiser uma key exata como <strong>bnmenu</strong> ou deixe em branco para gerar automaticamente.</div>
+<div class="chip admin" id="roleChip">Conta</div>
+<h1 class="title" style="margin-top:12px" id="heroTitle">Dashboard do BN MENU para Mini City</h1>
+<p class="muted" id="heroText">Carregando a dashboard da sua conta.</p>
+<div class="panel" style="margin-top:16px;padding:16px" id="heroBox">Carregando informacoes da conta...</div>
 </article>
 <aside class="panel meta">
 <div><span class="muted">Usuario</span><strong id="mUser">-</strong></div>
@@ -40,6 +40,22 @@
 </aside>
 </section>
 
+<section class="panel" id="userBox" style="display:none;">
+<div class="head"><h2>Dashboard do usuario</h2></div>
+<div class="grid">
+<p class="muted">Sua conta esta pronta. Aqui voce pega o loadstring do menu e pode sair quando quiser.</p>
+<div class="grid">
+<label for="loadstringField">Loadstring do BN MENU</label>
+<textarea id="loadstringField" readonly>loadstring(game:HttpGet("https://raw.githubusercontent.com/Esd537/bn-menu/refs/heads/main/menu.lua"))()</textarea>
+</div>
+<div class="row">
+<button class="btn" type="button" onclick="copyLoadstring()">Copiar loadstring</button>
+<button class="chip danger" type="button" onclick="logout()">Sair da conta</button>
+</div>
+</div>
+</section>
+
+<section id="adminArea" style="display:none;gap:16px;">
 <div class="cards">
 <article class="card"><span class="muted">Total de keys</span><b id="sTotal">0</b></article>
 <article class="card"><span class="muted">Keys ativas</span><b id="sActive">0</b></article>
@@ -84,6 +100,7 @@
 <div class="head"><h2>Keys cadastradas</h2></div>
 <div class="table"><table><thead><tr><th>Key</th><th>Tipo</th><th>Status</th><th>Usuario</th><th>Dispositivos</th><th>Criada em</th><th>Acoes</th></tr></thead><tbody id="kBody"></tbody></table></div>
 </section>
+</section>
 </main>
 </div>
 <div class="msg" id="msg"></div>
@@ -91,6 +108,7 @@
 <script>
 const API=location.hostname==='localhost'?'http://localhost:3000/api':'https://bn-menu-api.onrender.com/api';
 const KEY='bn_menu_token';
+const LOADSTRING='loadstring(game:HttpGet("https://raw.githubusercontent.com/Esd537/bn-menu/refs/heads/main/menu.lua"))()';
 const st={user:null,stats:{},keys:{},activity:[],users:[],hook:{}};
 const g=()=>localStorage.getItem(KEY)||'';
 const clr=()=>{localStorage.removeItem(KEY);localStorage.removeItem('bn_menu_role');localStorage.removeItem('bn_menu_name')};
@@ -98,7 +116,7 @@ const esc=v=>String(v??'-').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/
 const fmt=v=>{if(!v)return'-';const d=new Date(v);return Number.isNaN(d.getTime())?'-':d.toLocaleString('pt-BR')};
 function note(t,e){const m=document.getElementById('msg');m.textContent=t;m.className=e?'msg err':'msg ok';clearTimeout(window.t1);window.t1=setTimeout(()=>m.className='msg',4200)}
 async function req(p,o={}){const r={method:o.method||'GET',headers:{'Content-Type':'application/json',...(o.headers||{})}};if(g()&&o.auth!==false)r.headers.Authorization=`Bearer ${g()}`;if(o.body!==undefined)r.body=JSON.stringify(o.body);const res=await fetch(API+p,r);const data=await res.json().catch(()=>({success:false,message:'Resposta invalida da API.'}));if(!res.ok||!data.success)throw new Error(data.message||'Falha na requisicao.');return data}
-function fillAccount(){const u=st.user;document.getElementById('uTop').textContent=`${u.displayName||u.username} (${u.role})`;document.getElementById('mUser').textContent=u.username||'-';document.getElementById('mName').textContent=u.displayName||'-';document.getElementById('mEmail').textContent=u.email||'-';document.getElementById('mProvider').textContent=u.provider||'-';document.getElementById('mCreated').textContent=fmt(u.createdAt);document.getElementById('mLogin').textContent=fmt(u.lastLoginAt)}
+function fillAccount(){const u=st.user;document.getElementById('uTop').textContent=`${u.displayName||u.username} (${u.role})`;document.getElementById('mUser').textContent=u.username||'-';document.getElementById('mName').textContent=u.displayName||'-';document.getElementById('mEmail').textContent=u.email||'-';document.getElementById('mProvider').textContent=u.provider||'-';document.getElementById('mCreated').textContent=fmt(u.createdAt);document.getElementById('mLogin').textContent=fmt(u.lastLoginAt);if(u.role==='admin'){document.getElementById('roleChip').textContent='Conta admin';document.getElementById('heroTitle').textContent='Dashboard do BN MENU para Mini City';document.getElementById('heroText').textContent='Aqui voce gerencia keys, webhook, usuarios e historico do script sem mexer na pagina de venda do menu.';document.getElementById('heroBox').innerHTML='Use key customizada quando quiser uma key exata como <strong>bnmenu</strong> ou deixe em branco para gerar automaticamente.';return}document.getElementById('roleChip').textContent='Conta de usuario';document.getElementById('heroTitle').textContent='Sua area do BN MENU';document.getElementById('heroText').textContent='Aqui voce pega o loadstring do menu e sai da conta quando quiser.';document.getElementById('heroBox').innerHTML='Seu acesso esta ativo. Copie o loadstring abaixo e execute no Mini City.'}
 function fillStats(){document.getElementById('sTotal').textContent=st.stats.total||0;document.getElementById('sActive').textContent=st.stats.active||0;document.getElementById('sExpired').textContent=st.stats.expired||0;document.getElementById('sUsers').textContent=st.users.length}
 function fillHook(){document.getElementById('hookState').value=st.hook.discordWebhookConfigured?`Configurado: ${st.hook.discordWebhookUrlPreview||'sim'}\nAtualizado em: ${fmt(st.hook.updatedAt)}`:'Nenhum webhook configurado.'}
 function fillUsers(){const b=document.getElementById('usersBody');if(!st.users.length){b.innerHTML='<tr><td colspan="6">Nenhuma conta cadastrada.</td></tr>';return}b.innerHTML=st.users.map(u=>`<tr><td>${esc(u.username)}</td><td>${esc(u.email)}</td><td><span class="status ${u.role==='admin'?'admin':'ok'}">${esc(u.role)}</span></td><td>${esc(u.provider)}</td><td>${esc(fmt(u.lastLoginAt))}</td><td>${esc(u.loginCount||0)}</td></tr>`).join('')}
@@ -114,10 +132,11 @@ async function delByType(){const t=prompt('Digite o tipo: daily, weekly, monthly
 async function delKey(k){if(!confirm(`Deletar a key ${k}?`))return;try{await req('/keys/'+encodeURIComponent(k),{method:'DELETE'});await loadAdmin();note('Key deletada.')}catch(err){note(err.message,1)}}
 async function resetKey(k){if(!confirm(`Resetar o HWID da key ${k}?`))return;try{await req('/keys/'+encodeURIComponent(k)+'/reset-hwid',{method:'POST'});await loadAdmin();note('HWID resetado.')}catch(err){note(err.message,1)}}
 async function copyKey(k){try{await navigator.clipboard.writeText(k);note('Key copiada.')}catch(err){note('Nao foi possivel copiar a key.',1)}}
+async function copyLoadstring(){try{await navigator.clipboard.writeText(LOADSTRING);note('Loadstring copiado.')}catch(err){note('Nao foi possivel copiar o loadstring.',1)}}
 function actInfo(i){const x=st.activity[i];if(!x)return;alert(`DETALHES DA ATIVIDADE\n\nJogador: ${x.playerName||'-'}\nUser ID: ${x.playerUserId||'-'}\nJogo: ${x.gameName||'-'}\nExecutor: ${x.executor||'-'}\nKey: ${x.key||'-'}\nTipo da key: ${x.keyType||'-'}\nHWID (mascarado): ${x.hwidMasked||'-'}\nRecebido em: ${fmt(x.timestamp)}`)}
 function keyInfo(k){const x=st.keys[k];if(!x)return;alert(`DETALHES DA KEY\n\nKey: ${k}\nTipo: ${x.type||'-'}\nUsuario: ${x.user||'-'}\nCriada em: ${fmt(x.created)}\nDispositivos: ${(x.devices||[]).length}/${x.maxDevices||1}\nLista: ${(x.devices||[]).join(', ')||'Nenhum dispositivo'}`)}
 function logout(){clr();location.href='index.html'}
-async function boot(){if(!g()){location.href='index.html';return}try{const me=await req('/auth/me');st.user=me.data.user;if(st.user.role!=='admin'){location.href='index.html';return}fillAccount();await loadAdmin()}catch(err){clr();location.href='index.html'}}
+async function boot(){if(!g()){location.href='index.html';return}try{const me=await req('/auth/me');st.user=me.data.user;fillAccount();if(st.user.role==='admin'){document.getElementById('adminArea').style.display='grid';await loadAdmin();return}document.getElementById('userBox').style.display='block'}catch(err){clr();location.href='index.html'}}
 boot();
 </script>
 </body>
